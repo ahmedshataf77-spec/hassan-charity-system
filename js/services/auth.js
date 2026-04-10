@@ -28,7 +28,8 @@ export function initAuth(onLoginSuccess) {
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
-                if (errorMsg) errorMsg.innerText = '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+                console.error(err);
+                if (errorMsg) errorMsg.innerText = `❌ خطأ (${err.code}): يرجى التأكد من التفعيل.`;
                 btn.innerText = 'تسجيل الدخول';
                 btn.disabled = false;
             }
