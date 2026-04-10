@@ -1,4 +1,4 @@
-import { db, ref, push, onValue, remove } from '../config/firebase.js';
+import { db, ref, push, onValue, remove, update } from '../config/firebase.js';
 import { toggleModal } from '../ui/modals.js';
 import { showView } from '../ui/navigation.js';
 
@@ -11,15 +11,11 @@ async function uploadImageToImgBB(file) {
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
-
     const formData = new FormData();
     formData.append('image', base64);
-
     const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: 'POST',
-        body: formData
+        method: 'POST', body: formData
     });
-
     const json = await res.json();
     if (json.success) return json.data.url;
     throw new Error('ImgBB upload failed');
@@ -27,9 +23,10 @@ async function uploadImageToImgBB(file) {
 
 let allCases = [];
 let currentTab = 'permanent';
+let editingCaseId = null; // Track which record is being edited
 
 export function initCasesService() {
-    // Watch for click on 'Cases' navigation to setup listeners
+    // Navigate to cases section
     const navCasesBtn = document.getElementById('nav-cases');
     if (navCasesBtn) {
         navCasesBtn.addEventListener('click', () => {
@@ -38,7 +35,7 @@ export function initCasesService() {
         });
     }
 
-    // Set up tabs switching
+    // Tabs switching
     document.querySelectorAll('[data-case-tab]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('[data-case-tab]').forEach(b => {
@@ -46,37 +43,40 @@ export function initCasesService() {
             });
             e.currentTarget.className = "flex-1 min-w-[120px] bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm";
             currentTab = e.currentTarget.getAttribute('data-case-tab');
-            renderCasesTable(allCases);
+            applySearch();
         });
     });
+
+    // Search input
+    const searchInput = document.getElementById('casesSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', applySearch);
+    }
 
     // Form submit listener
     const caseForm = document.getElementById('caseForm');
     if (caseForm) {
         caseForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const btn = document.getElementById('saveCaseBtn');
             const statusText = document.getElementById('caseUploadStatus');
-
             const nameInput = document.getElementById('caseName').value.trim();
             const nIdInput = document.getElementById('caseNationalId').value.trim();
 
-            // Uniqueness Validation (General Prevention)
-            const isDuplicate = allCases.some(record => 
-                (record.nationalId && record.nationalId === nIdInput) || 
-                (record.name && record.name === nameInput)
+            // Uniqueness Validation (skip check if editing same record)
+            const isDuplicate = allCases.some(record =>
+                record.id !== editingCaseId &&
+                ((record.nationalId && record.nationalId === nIdInput) ||
+                (record.name && record.name === nameInput))
             );
 
             if (isDuplicate) {
-                alert("خطأ: الاسم أو الرقم القومي مسجل من قبل في الجمعية. يرجى تجنب التكرار.");
-                return; // Stop form submission
+                alert("❌ خطأ: الاسم أو الرقم القومي مسجل من قبل في الجمعية. يرجى تجنب التكرار.");
+                return;
             }
 
-            if (btn) {
-                btn.innerText = 'جاري الحفظ...';
-                btn.disabled = true;
-            }
+            if (btn) { btn.innerText = 'جاري الحفظ...'; btn.disabled = true; }
 
             let documentUrl = '';
             const fileInput = document.getElementById('caseDoc');
@@ -90,10 +90,8 @@ export function initCasesService() {
                 } catch (err) {
                     console.error("ImgBB upload error", err);
                     if (statusText) statusText.innerText = '⚠️ تعذّر رفع الصورة - سيتم الحفظ بدون صورة.';
-                    documentUrl = '';
                 }
             }
-
 
             const record = {
                 category: document.getElementById('caseCategory').value,
@@ -104,41 +102,78 @@ export function initCasesService() {
                 address: document.getElementById('caseAddress').value,
                 details: document.getElementById('caseDetails').value,
                 notes: document.getElementById('caseNotes').value,
-                documentUrl: documentUrl || ""
             };
-            
+
+            // Keep old image if no new file uploaded
+            if (documentUrl) {
+                record.documentUrl = documentUrl;
+            } else if (editingCaseId) {
+                const existing = allCases.find(r => r.id === editingCaseId);
+                record.documentUrl = existing ? (existing.documentUrl || '') : '';
+            } else {
+                record.documentUrl = '';
+            }
+
             try {
-                await push(ref(db, 'cases'), record);
+                if (editingCaseId) {
+                    // UPDATE mode
+                    await update(ref(db, 'cases/' + editingCaseId), record);
+                    editingCaseId = null;
+                } else {
+                    // ADD mode
+                    await push(ref(db, 'cases'), record);
+                }
                 toggleModal('caseModal');
                 caseForm.reset();
+                document.getElementById('caseModalTitle').innerText = 'إضافة حالة جديدة';
+                document.getElementById('saveCaseBtn').innerText = 'حفظ وتأكيد';
             } catch (error) {
                 console.error("Error saving case", error);
                 alert("حدث خطأ أثناء الحفظ");
             } finally {
                 if (statusText) statusText.innerText = '';
-                if (btn) {
-                    btn.innerText = 'حفظ وتأكيد';
-                    btn.disabled = false;
-                }
+                if (btn) { btn.innerText = 'حفظ وتأكيد'; btn.disabled = false; }
             }
         });
     }
 
+    // Reset edit mode when modal closes
+    document.querySelectorAll('[data-toggle-modal="caseModal"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (editingCaseId) {
+                editingCaseId = null;
+                document.getElementById('caseForm').reset();
+                document.getElementById('caseModalTitle').innerText = 'إضافة حالة جديدة';
+                document.getElementById('saveCaseBtn').innerText = 'حفظ وتأكيد';
+            }
+        });
+    });
+
     // Export Button
     const exportBtn = document.getElementById('exportCasesBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportToExcel);
-    }
+    if (exportBtn) exportBtn.addEventListener('click', exportToExcel);
+}
+
+function applySearch() {
+    const query = (document.getElementById('casesSearch')?.value || '').toLowerCase();
+    const filtered = allCases.filter(r => {
+        const matchesTab = (r.category || 'permanent') === currentTab;
+        if (!query) return matchesTab;
+        const matchesSearch = (r.name || '').toLowerCase().includes(query) ||
+            (r.nationalId || '').includes(query) ||
+            (r.phone || '').includes(query) ||
+            (r.address || '').toLowerCase().includes(query);
+        return matchesTab && matchesSearch;
+    });
+    renderCasesTable(filtered);
 }
 
 function loadCases() {
     onValue(ref(db, 'cases'), (snapshot) => {
         const data = snapshot.val();
         allCases = [];
-        for (let id in data) {
-            allCases.push({ id, ...data[id] });
-        }
-        renderCasesTable(allCases);
+        for (let id in data) allCases.push({ id, ...data[id] });
+        applySearch();
     });
 }
 
@@ -146,28 +181,54 @@ function renderCasesTable(records) {
     const tbody = document.getElementById('casesTableBody');
     if (!tbody) return;
 
-    // Filter by current Tab
-    const filteredRecords = records.filter(r => (r.category || 'permanent') === currentTab);
-
-    if (!filteredRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="10" class="p-10 text-center text-gray-400">لا توجد بيانات في هذا القسم</td></tr>';
+    if (!records || !records.length) {
+        tbody.innerHTML = '<tr><td colspan="11" class="p-10 text-center text-gray-400">لا توجد بيانات في هذا القسم أو لا توجد نتائج بحث</td></tr>';
         return;
     }
 
-    tbody.innerHTML = filteredRecords.map((r, i) => `
+    tbody.innerHTML = records.map((r, i) => `
         <tr class="border-b hover:bg-gray-50">
-            <td class="p-4">${i + 1}</td>
-            <td class="p-4 font-bold">${r.name || '-'}</td>
-            <td class="p-4">${r.nationalId || '-'}</td>
-            <td class="p-4">${r.phone || '-'}</td>
-            <td class="p-4 text-sm">${r.address || '-'}</td>
-            <td class="p-4 text-center">${r.familyCount || '-'}</td>
-            <td class="p-4 text-sm">${r.details || '-'}</td>
-            <td class="p-4">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline">عرض</a>` : 'لا يوجد'}</td>
-            <td class="p-4 text-xs text-gray-500 w-32">${r.notes || '-'}</td>
-            <td class="p-4"><button data-delete-case="${r.id}" class="text-red-500 text-sm">حذف</button></td>
+            <td class="p-3 text-center">${i + 1}</td>
+            <td class="p-3 font-bold">${r.name || '-'}</td>
+            <td class="p-3">${r.nationalId || '-'}</td>
+            <td class="p-3">${r.phone || '-'}</td>
+            <td class="p-3 text-sm">${r.address || '-'}</td>
+            <td class="p-3 text-center">${r.familyCount || '-'}</td>
+            <td class="p-3 text-sm">${r.details || '-'}</td>
+            <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض</a>` : 'لا يوجد'}</td>
+            <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
+            <td class="p-3">
+                <div class="flex gap-2 justify-center">
+                    <button data-edit-case="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>
+                    <button data-delete-case="${r.id}" class="text-red-500 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50">حذف</button>
+                </div>
+            </td>
         </tr>
     `).join('');
+
+    // Attach edit listeners
+    tbody.querySelectorAll('[data-edit-case]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.getAttribute('data-edit-case');
+            const record = allCases.find(r => r.id === id);
+            if (!record) return;
+            editingCaseId = id;
+
+            // Populate form
+            document.getElementById('caseCategory').value = record.category || 'permanent';
+            document.getElementById('caseName').value = record.name || '';
+            document.getElementById('caseNationalId').value = record.nationalId || '';
+            document.getElementById('casePhone').value = record.phone || '';
+            document.getElementById('caseFamilyCount').value = record.familyCount || '';
+            document.getElementById('caseAddress').value = record.address || '';
+            document.getElementById('caseDetails').value = record.details || '';
+            document.getElementById('caseNotes').value = record.notes || '';
+
+            document.getElementById('caseModalTitle').innerText = 'تعديل بيانات الحالة ✏️';
+            document.getElementById('saveCaseBtn').innerText = 'حفظ التعديلات';
+            toggleModal('caseModal');
+        });
+    });
 
     // Attach delete listeners
     tbody.querySelectorAll('[data-delete-case]').forEach(btn => {
@@ -181,18 +242,9 @@ function renderCasesTable(records) {
 }
 
 function exportToExcel() {
-    if (!window.XLSX) {
-        alert("المكتبة غير جاهزة بعد، يرجى الانتظار لمحاولة أخرى.");
-        return;
-    }
-
-    // Export the cases currently viewed in the active tab
+    if (!window.XLSX) { alert("مكتبة Excel غير جاهزة بعد."); return; }
     const filteredRecords = allCases.filter(r => (r.category || 'permanent') === currentTab);
-    
-    if (filteredRecords.length === 0) {
-        alert("لا توجد بيانات لتصديرها.");
-        return;
-    }
+    if (!filteredRecords.length) { alert("لا توجد بيانات لتصديرها."); return; }
 
     const exportData = filteredRecords.map((r, index) => ({
         "م": index + 1,
@@ -206,19 +258,9 @@ function exportToExcel() {
         "رابط المستند": r.documentUrl || "لا يوجد"
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "الحالات");
-    
-    // File name localized map
-    const categoriesLabels = {
-        'permanent': 'حالات_دائم',
-        'temporary': 'حالات_مؤقتة',
-        'orphans': 'أيتام',
-        'support': 'تجهيز_ودعم'
-    };
-    
-    const fileName = `${categoriesLabels[currentTab]}_export.xlsx`;
-
-    XLSX.writeFile(workbook, fileName);
+    const labels = { permanent: 'حالات_دائم', temporary: 'حالات_مؤقتة', orphans: 'أيتام', support: 'تجهيز_ودعم' };
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "الحالات");
+    XLSX.writeFile(wb, `${labels[currentTab]}_export.xlsx`);
 }

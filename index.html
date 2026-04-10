@@ -11,182 +11,240 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
-<body class="p-6">
+<body class="p-0">
 
-    <div class="text-center mb-10">
-        <h1 class="text-3xl font-bold text-gray-800">نظام جمعية مسجد حسان</h1>
-    </div>
-
-    <!-- الشاشة الرئيسية -->
-    <div id="mainDashboard" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        <div id="nav-management"
-            class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
-            <div class="bg-blue-100 p-4 rounded-xl mb-4 text-blue-600">⚙️</div>
-            <h2 class="text-xl font-bold mb-2">الإدارة</h2>
-            <span class="text-blue-600 font-bold">عرض التفاصيل ←</span>
-        </div>
-        <div id="nav-cases"
-            class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
-            <div class="bg-emerald-100 p-4 rounded-xl mb-4 text-emerald-600">👥</div>
-            <h2 class="text-xl font-bold mb-2">الحالات</h2>
-            <span class="text-emerald-600 font-bold">عرض التفاصيل ←</span>
-        </div>
-    </div>
-
-    <!-- شاشة الإدارة -->
-    <div id="managementDashboard" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        <div class="col-span-full mb-4">
-            <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع
-                للرئيسية</button>
-            <h2 class="text-2xl font-bold mt-4 mb-2 text-center">الإدارة</h2>
-        </div>
-        <div id="nav-members"
-            class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
-            <div class="bg-indigo-100 p-4 rounded-xl mb-4 text-indigo-600">👤</div>
-            <h2 class="text-xl font-bold mb-2">إضافة أعضاء</h2>
-            <span class="text-indigo-600 font-bold">عرض التفاصيل ←</span>
-        </div>
-        <div id="nav-revenues"
-            class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
-            <div class="bg-amber-100 p-4 rounded-xl mb-4 text-amber-600">💰</div>
-            <h2 class="text-xl font-bold mb-2">إيرادات ومصروفات</h2>
-            <span class="text-amber-600 font-bold">عرض التفاصيل ←</span>
+    <!-- ===== شاشة تسجيل الدخول ===== -->
+    <div id="loginScreen" class="min-h-screen bg-gradient-to-br from-emerald-800 to-teal-600 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-3">🕌</div>
+                <h1 class="text-2xl font-bold text-gray-800">جمعية مسجد حسان</h1>
+                <p class="text-gray-500 mt-1 text-sm">النظام الإداري المتكامل</p>
+            </div>
+            <form id="loginForm" class="flex flex-col gap-4">
+                <div>
+                    <label class="text-sm font-bold text-gray-600 block mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="loginEmail" placeholder="admin@hassan-charity.com"
+                        class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-600 block mb-1">كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••"
+                        class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 outline-none" required>
+                </div>
+                <p id="loginError" class="text-red-500 text-sm text-center min-h-[20px]"></p>
+                <button type="submit" id="loginBtn"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors">
+                    تسجيل الدخول
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- قسم الحالات -->
-    <div id="casesSection" class="hidden max-w-7xl mx-auto section-view">
-        <div class="flex justify-between items-center mb-6">
-            <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
-            <h2 class="text-2xl font-bold">سجل الحالات</h2>
-            <div class="flex gap-2">
-                <button id="exportCasesBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm flex items-center">📊 تصدير Excel</button>
-                <button data-toggle-modal="caseModal" class="bg-emerald-600 text-white px-6 py-2 rounded-lg text-sm">+ إضافة حالة</button>
+    <!-- ===== مودال تغيير كلمة المرور ===== -->
+    <div id="changePasswordModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold mb-6 text-gray-800">🔑 تغيير كلمة المرور</h3>
+            <form id="changePasswordForm" class="flex flex-col gap-4">
+                <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة"
+                    class="p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-emerald-500" required>
+                <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور الجديدة"
+                    class="p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-emerald-500" required>
+                <p id="changePassMsg" class="text-sm min-h-[20px]"></p>
+                <div class="flex gap-3">
+                    <button type="button" id="cancelChangePass" class="flex-1 bg-gray-200 py-2 rounded-xl">إلغاء</button>
+                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold">تغيير</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== محتوى التطبيق الرئيسي ===== -->
+    <div id="appContainer" class="hidden">
+
+        <!-- شريط علوي -->
+        <div class="bg-emerald-700 text-white px-6 py-3 flex justify-between items-center shadow-md">
+            <h1 class="text-lg font-bold">🕌 جمعية مسجد حسان</h1>
+            <div class="flex items-center gap-3">
+                <button id="changePasswordBtn" class="text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors">🔑 تغيير كلمة المرور</button>
+                <button id="logoutBtn" class="text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors">خروج 🚪</button>
             </div>
         </div>
 
-        <div class="flex gap-2 mb-4 overflow-x-auto pb-2" id="casesTabs">
-            <button data-case-tab="permanent" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm">حالات دائم</button>
-            <button data-case-tab="temporary" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">حالات مؤقتة</button>
-            <button data-case-tab="orphans" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">أيتام</button>
-            <button data-case-tab="support" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">تجهيز ودعم</button>
-        </div>
+        <div class="p-6">
+            <!-- الشاشة الرئيسية -->
+            <div id="mainDashboard" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                <div id="nav-management"
+                    class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
+                    <div class="bg-blue-100 p-4 rounded-xl mb-4 text-blue-600 text-4xl">⚙️</div>
+                    <h2 class="text-xl font-bold mb-2">الإدارة</h2>
+                    <span class="text-blue-600 font-bold">عرض التفاصيل ←</span>
+                </div>
+                <div id="nav-cases"
+                    class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
+                    <div class="bg-emerald-100 p-4 rounded-xl mb-4 text-emerald-600 text-4xl">👥</div>
+                    <h2 class="text-xl font-bold mb-2">الحالات</h2>
+                    <span class="text-emerald-600 font-bold">عرض التفاصيل ←</span>
+                </div>
+            </div>
 
-        <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
-            <table class="w-full text-right text-sm" id="casesTable">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="p-4">م</th>
-                        <th class="p-4">الاسم</th>
-                        <th class="p-4">الرقم القومي</th>
-                        <th class="p-4">الهاتف</th>
-                        <th class="p-4">العنوان</th>
-                        <th class="p-4 text-center">الأسرة</th>
-                        <th class="p-4">الحالة</th>
-                        <th class="p-4">المستندات</th>
-                        <th class="p-4">الملاحظات</th>
-                        <th class="p-4">إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="casesTableBody"></tbody>
-            </table>
-        </div>
-    </div>
+            <!-- شاشة الإدارة -->
+            <div id="managementDashboard" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                <div class="col-span-full mb-4">
+                    <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع للرئيسية</button>
+                    <h2 class="text-2xl font-bold mt-4 mb-2 text-center">الإدارة</h2>
+                </div>
+                <div id="nav-members"
+                    class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
+                    <div class="bg-indigo-100 p-4 rounded-xl mb-4 text-indigo-600 text-4xl">👤</div>
+                    <h2 class="text-xl font-bold mb-2">إضافة أعضاء</h2>
+                    <span class="text-indigo-600 font-bold">عرض التفاصيل ←</span>
+                </div>
+                <div id="nav-revenues"
+                    class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
+                    <div class="bg-amber-100 p-4 rounded-xl mb-4 text-amber-600 text-4xl">💰</div>
+                    <h2 class="text-xl font-bold mb-2">إيرادات ومصروفات</h2>
+                    <span class="text-amber-600 font-bold">عرض التفاصيل ←</span>
+                </div>
+            </div>
 
-    <!-- قسم الأعضاء -->
-    <div id="membersSection" class="hidden max-w-7xl mx-auto section-view">
-        <div class="flex justify-between items-center mb-6">
-            <button data-nav-back="managementDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
-            <h2 class="text-2xl font-bold">سجل الأعضاء</h2>
-            <button data-toggle-modal="memberModal" class="bg-indigo-600 text-white px-6 py-2 rounded-lg">+ إضافة عضو</button>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
-            <table class="w-full text-right text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="p-4">م</th>
-                        <th class="p-4">الاسم</th>
-                        <th class="p-4">الرقم القومي</th>
-                        <th class="p-4">الهاتف</th>
-                        <th class="p-4">العنوان</th>
-                        <th class="p-4">الوظيفة</th>
-                        <th class="p-4">المستندات</th>
-                        <th class="p-4">الملاحظات</th>
-                        <th class="p-4">إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="membersTableBody"></tbody>
-            </table>
-        </div>
-    </div>
+            <!-- قسم الحالات -->
+            <div id="casesSection" class="hidden max-w-7xl mx-auto section-view">
+                <div class="flex justify-between items-center mb-4">
+                    <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
+                    <h2 class="text-2xl font-bold">سجل الحالات</h2>
+                    <div class="flex gap-2">
+                        <button id="exportCasesBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">📊 تصدير Excel</button>
+                        <button data-toggle-modal="caseModal" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm">+ إضافة حالة</button>
+                    </div>
+                </div>
 
-    <!-- قسم الإيرادات والمصروفات -->
-    <div id="revenuesSection" class="hidden max-w-7xl mx-auto section-view">
-        <div class="flex justify-between items-center mb-6">
-            <button data-nav-back="managementDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
-            <h2 class="text-2xl font-bold">سجل الإيرادات والمصروفات</h2>
-            <button data-toggle-modal="revenueModal" class="bg-amber-600 text-white px-6 py-2 rounded-lg">+ إضافة معاملة</button>
-        </div>
+                <!-- تبويبات الأقسام -->
+                <div class="flex gap-2 mb-4 overflow-x-auto pb-2" id="casesTabs">
+                    <button data-case-tab="permanent" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm">حالات دائم</button>
+                    <button data-case-tab="temporary" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">حالات مؤقتة</button>
+                    <button data-case-tab="orphans" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">أيتام</button>
+                    <button data-case-tab="support" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">تجهيز ودعم</button>
+                </div>
 
-        <h3 class="text-xl font-bold mb-4 text-emerald-700">الإيرادات العينية</h3>
-        <div class="bg-white rounded-xl shadow-sm border overflow-x-auto mb-8">
-            <table class="w-full text-right text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="p-4">م</th>
-                        <th class="p-4">الاسم</th>
-                        <th class="p-4">البند</th>
-                        <th class="p-4">الكمية</th>
-                        <th class="p-4">الجهة</th>
-                        <th class="p-4">التاريخ</th>
-                        <th class="p-4">الملاحظات</th>
-                        <th class="p-4">إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="inkindTableBody"></tbody>
-            </table>
-        </div>
+                <!-- بحث -->
+                <div class="mb-4">
+                    <input type="text" id="casesSearch" placeholder="🔍 ابحث بالاسم أو الرقم القومي أو الهاتف..."
+                        class="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-emerald-400 text-sm">
+                </div>
 
-        <h3 class="text-xl font-bold mb-4 text-emerald-700">الإيرادات النقدية</h3>
-        <div class="bg-white rounded-xl shadow-sm border overflow-x-auto mb-8">
-            <table class="w-full text-right text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="p-4">م</th>
-                        <th class="p-4">الاسم</th>
-                        <th class="p-4">الجهة</th>
-                        <th class="p-4">المبلغ</th>
-                        <th class="p-4">البند</th>
-                        <th class="p-4">إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="cashTableBody"></tbody>
-            </table>
-        </div>
+                <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
+                    <table class="w-full text-right text-sm" id="casesTable">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-3 text-center">م</th>
+                                <th class="p-3">الاسم</th>
+                                <th class="p-3">الرقم القومي</th>
+                                <th class="p-3">الهاتف</th>
+                                <th class="p-3">العنوان</th>
+                                <th class="p-3 text-center">الأسرة</th>
+                                <th class="p-3">الحالة</th>
+                                <th class="p-3">المستندات</th>
+                                <th class="p-3">الملاحظات</th>
+                                <th class="p-3 text-center">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="casesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
 
-        <h3 class="text-xl font-bold mb-4 text-red-700">المصروفات</h3>
-        <div class="bg-white rounded-xl shadow-sm border overflow-x-auto mb-8">
-            <table class="w-full text-right text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="p-4">م</th>
-                        <th class="p-4">المبلغ</th>
-                        <th class="p-4">التاريخ</th>
-                        <th class="p-4">البند</th>
-                        <th class="p-4">رقم القرار</th>
-                        <th class="p-4">القائم بالصرف</th>
-                        <th class="p-4">إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="expensesTableBody"></tbody>
-            </table>
+            <!-- قسم الأعضاء -->
+            <div id="membersSection" class="hidden max-w-7xl mx-auto section-view">
+                <div class="flex justify-between items-center mb-4">
+                    <button data-nav-back="managementDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
+                    <h2 class="text-2xl font-bold">سجل الأعضاء</h2>
+                    <button data-toggle-modal="memberModal" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">+ إضافة عضو</button>
+                </div>
+
+                <!-- بحث -->
+                <div class="mb-4">
+                    <input type="text" id="membersSearch" placeholder="🔍 ابحث بالاسم أو الرقم القومي أو الهاتف..."
+                        class="w-full p-3 border-2 border-gray-200 rounded-xl outline-none focus:border-indigo-400 text-sm">
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-3 text-center">م</th>
+                                <th class="p-3">الاسم</th>
+                                <th class="p-3">الرقم القومي</th>
+                                <th class="p-3">الهاتف</th>
+                                <th class="p-3">العنوان</th>
+                                <th class="p-3">الوظيفة</th>
+                                <th class="p-3">المستندات</th>
+                                <th class="p-3">الملاحظات</th>
+                                <th class="p-3 text-center">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم الإيرادات والمصروفات -->
+            <div id="revenuesSection" class="hidden max-w-7xl mx-auto section-view">
+                <div class="flex justify-between items-center mb-6">
+                    <button data-nav-back="managementDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
+                    <h2 class="text-2xl font-bold">سجل الإيرادات والمصروفات</h2>
+                    <button data-toggle-modal="revenueModal" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm">+ إضافة معاملة</button>
+                </div>
+
+                <h3 class="text-xl font-bold mb-4 text-emerald-700">الإيرادات العينية</h3>
+                <div class="bg-white rounded-xl shadow-sm border overflow-x-auto mb-8">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-4">م</th><th class="p-4">الاسم</th><th class="p-4">البند</th>
+                                <th class="p-4">الكمية</th><th class="p-4">الجهة</th><th class="p-4">التاريخ</th>
+                                <th class="p-4">الملاحظات</th><th class="p-4">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inkindTableBody"></tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-xl font-bold mb-4 text-emerald-700">الإيرادات النقدية</h3>
+                <div class="bg-white rounded-xl shadow-sm border overflow-x-auto mb-8">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-4">م</th><th class="p-4">الاسم</th><th class="p-4">الجهة</th>
+                                <th class="p-4">المبلغ</th><th class="p-4">البند</th><th class="p-4">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cashTableBody"></tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-xl font-bold mb-4 text-red-700">المصروفات</h3>
+                <div class="bg-white rounded-xl shadow-sm border overflow-x-auto mb-8">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="p-4">م</th><th class="p-4">المبلغ</th><th class="p-4">التاريخ</th>
+                                <th class="p-4">البند</th><th class="p-4">رقم القرار</th>
+                                <th class="p-4">القائم بالصرف</th><th class="p-4">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <!-- مودال الحالات -->
     <div id="caseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-8 w-full max-w-2xl m-auto mt-10">
-            <h3 class="text-xl font-bold mb-6">إضافة حالة جديدة</h3>
+            <h3 id="caseModalTitle" class="text-xl font-bold mb-6">إضافة حالة جديدة</h3>
             <form id="caseForm" class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="block text-sm font-bold mb-1 text-gray-700">القسم المستهدف للتسجيل</label>
@@ -197,7 +255,6 @@
                         <option value="support">تجهيز ودعم</option>
                     </select>
                 </div>
-                
                 <input type="text" id="caseName" placeholder="الاسم الكامل" class="p-2 border rounded" required>
                 <input type="text" id="caseNationalId" placeholder="الرقم القومي (يجب أن يكون مميزاً)" class="p-2 border rounded" required>
                 <input type="text" id="casePhone" placeholder="رقم الهاتف" class="p-2 border rounded">
@@ -205,26 +262,23 @@
                 <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded col-span-2">
                 <input type="text" id="caseDetails" placeholder="تفاصيل وحالة المتقدم" class="p-2 border rounded col-span-2">
                 <input type="text" id="caseNotes" placeholder="أية ملاحظات إضافية" class="p-2 border rounded col-span-2">
-                
                 <div class="col-span-2 border p-4 rounded-lg bg-gray-50 flex flex-col gap-2">
                     <label class="font-bold text-sm">المستندات والصور المتوفرة</label>
                     <input type="file" id="caseDoc" accept="image/*,.pdf" class="w-full border p-2 bg-white rounded">
                     <p id="caseUploadStatus" class="text-xs text-blue-600"></p>
                 </div>
-
                 <div class="col-span-2 flex justify-end gap-2 mt-4 border-t pt-4">
-                    <button type="button" data-toggle-modal="caseModal" class="bg-gray-200 px-6 py-2 rounded-lg shadow-sm">إلغاء</button>
-                    <button type="submit" id="saveCaseBtn" class="bg-emerald-600 text-white px-8 py-2 rounded-lg font-bold shadow-sm">حفظ وتأكيد</button>
+                    <button type="button" data-toggle-modal="caseModal" class="bg-gray-200 px-6 py-2 rounded-lg">إلغاء</button>
+                    <button type="submit" id="saveCaseBtn" class="bg-emerald-600 text-white px-8 py-2 rounded-lg font-bold">حفظ وتأكيد</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- مودال الأعضاء -->
-    <div id="memberModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div id="memberModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-8 w-full max-w-2xl m-auto mt-10">
-            <h3 class="text-xl font-bold mb-6">إضافة عضو جديد</h3>
+            <h3 id="memberModalTitle" class="text-xl font-bold mb-6">إضافة عضو جديد</h3>
             <form id="memberForm" class="grid grid-cols-2 gap-4">
                 <input type="text" id="memName" placeholder="الاسم الكامل" class="p-2 border rounded" required>
                 <input type="text" id="memNationalId" placeholder="الرقم القومي" class="p-2 border rounded">
@@ -232,13 +286,11 @@
                 <input type="text" id="memAddress" placeholder="العنوان" class="p-2 border rounded">
                 <input type="text" id="memJob" placeholder="الوظيفة" class="p-2 border rounded">
                 <input type="text" id="memNotes" placeholder="الملاحظات" class="p-2 border rounded">
-
                 <div class="col-span-2 border p-4 rounded-lg bg-gray-50 flex flex-col gap-2">
                     <label class="font-bold text-sm">المستندات (صورة)</label>
                     <input type="file" id="memDoc" accept="image/*" class="w-full">
                     <p id="uploadStatus" class="text-xs text-blue-600 mt-1"></p>
                 </div>
-
                 <div class="col-span-2 flex justify-end gap-2 mt-4">
                     <button type="button" data-toggle-modal="memberModal" class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
                     <button type="submit" id="saveMemberBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg">حفظ</button>
@@ -248,47 +300,37 @@
     </div>
 
     <!-- مودال الإيرادات والمصروفات -->
-    <div id="revenueModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div id="revenueModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-8 w-full max-w-2xl m-auto mt-10">
             <h3 class="text-xl font-bold mb-6">إضافة معاملة مالية</h3>
-
             <div class="flex gap-4 mb-6">
                 <button type="button" id="btnRevInkind" class="flex-1 py-2 rounded-lg bg-emerald-600 text-white">إيراد عيني</button>
                 <button type="button" id="btnRevCash" class="flex-1 py-2 rounded-lg bg-gray-200">إيراد نقدي</button>
                 <button type="button" id="btnRevExpense" class="flex-1 py-2 rounded-lg bg-gray-200">مصروف</button>
             </div>
-
             <form id="revenueForm" class="grid grid-cols-2 gap-4">
                 <input type="hidden" id="revType" value="inkind">
-
-                <!-- Inkind Fields -->
                 <div id="inkindFields" class="col-span-2 grid grid-cols-2 gap-4">
                     <input type="text" id="inkindName" placeholder="الاسم" class="p-2 border rounded col-span-2">
                     <input type="text" id="inkindEntity" placeholder="الجهة" class="p-2 border rounded">
                     <input type="text" id="inkindItem" placeholder="البند" class="p-2 border rounded">
                     <input type="number" id="inkindQuantity" placeholder="الكمية" class="p-2 border rounded">
-                    <input type="date" id="inkindDate" placeholder="التاريخ" class="p-2 border rounded">
+                    <input type="date" id="inkindDate" class="p-2 border rounded">
                     <input type="text" id="inkindNotes" placeholder="الملاحظات" class="p-2 border rounded col-span-2">
                 </div>
-
-                <!-- Cash Fields -->
                 <div id="cashFields" class="col-span-2 grid grid-cols-2 gap-4 hidden">
                     <input type="text" id="cashName" placeholder="الاسم" class="p-2 border rounded col-span-2">
                     <input type="text" id="cashEntity" placeholder="الجهة" class="p-2 border rounded">
                     <input type="text" id="cashItem" placeholder="البند" class="p-2 border rounded">
                     <input type="number" id="cashAmount" placeholder="المبلغ" class="p-2 border rounded">
                 </div>
-
-                <!-- Expense Fields -->
                 <div id="expenseFields" class="col-span-2 grid grid-cols-2 gap-4 hidden">
                     <input type="number" id="expAmount" placeholder="المبلغ" class="p-2 border rounded">
-                    <input type="date" id="expDate" placeholder="التاريخ" class="p-2 border rounded">
+                    <input type="date" id="expDate" class="p-2 border rounded">
                     <input type="text" id="expItem" placeholder="البند" class="p-2 border rounded">
                     <input type="text" id="expDecision" placeholder="رقم القرار" class="p-2 border rounded">
                     <input type="text" id="expSpender" placeholder="القائم بالصرف" class="p-2 border rounded col-span-2">
                 </div>
-
                 <div class="col-span-2 flex justify-end gap-2 mt-4">
                     <button type="button" data-toggle-modal="revenueModal" class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
                     <button type="submit" class="bg-amber-600 text-white px-6 py-2 rounded-lg">حفظ</button>
