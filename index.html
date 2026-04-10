@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body class="p-6">
@@ -58,18 +59,32 @@
         <div class="flex justify-between items-center mb-6">
             <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
             <h2 class="text-2xl font-bold">سجل الحالات</h2>
-            <button data-toggle-modal="caseModal" class="bg-emerald-600 text-white px-6 py-2 rounded-lg">+ إضافة حالة</button>
+            <div class="flex gap-2">
+                <button id="exportCasesBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm flex items-center">📊 تصدير Excel</button>
+                <button data-toggle-modal="caseModal" class="bg-emerald-600 text-white px-6 py-2 rounded-lg text-sm">+ إضافة حالة</button>
+            </div>
         </div>
+
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-2" id="casesTabs">
+            <button data-case-tab="permanent" class="flex-1 min-w-[120px] bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm">حالات دائم</button>
+            <button data-case-tab="temporary" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">حالات مؤقتة</button>
+            <button data-case-tab="orphans" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">أيتام</button>
+            <button data-case-tab="support" class="flex-1 min-w-[120px] bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">تجهيز ودعم</button>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
-            <table class="w-full text-right text-sm">
+            <table class="w-full text-right text-sm" id="casesTable">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="p-4">م</th>
                         <th class="p-4">الاسم</th>
-                        <th class="p-4">المبلغ</th>
                         <th class="p-4">الرقم القومي</th>
                         <th class="p-4">الهاتف</th>
                         <th class="p-4">العنوان</th>
+                        <th class="p-4 text-center">الأسرة</th>
+                        <th class="p-4">الحالة</th>
+                        <th class="p-4">المستندات</th>
+                        <th class="p-4">الملاحظات</th>
                         <th class="p-4">إجراء</th>
                     </tr>
                 </thead>
@@ -169,18 +184,37 @@
     </div>
 
     <!-- مودال الحالات -->
-    <div id="caseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-2xl">
+    <div id="caseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-2xl m-auto mt-10">
             <h3 class="text-xl font-bold mb-6">إضافة حالة جديدة</h3>
             <form id="caseForm" class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-sm font-bold mb-1 text-gray-700">القسم المستهدف للتسجيل</label>
+                    <select id="caseCategory" class="w-full p-2 border rounded-lg bg-gray-50 border-emerald-500 font-bold">
+                        <option value="permanent">حالات دائم</option>
+                        <option value="temporary">حالات مؤقتة</option>
+                        <option value="orphans">أيتام</option>
+                        <option value="support">تجهيز ودعم</option>
+                    </select>
+                </div>
+                
                 <input type="text" id="caseName" placeholder="الاسم الكامل" class="p-2 border rounded" required>
-                <input type="number" id="caseAmount" placeholder="المبلغ" class="p-2 border rounded">
-                <input type="text" id="caseNationalId" placeholder="الرقم القومي" class="p-2 border rounded">
+                <input type="text" id="caseNationalId" placeholder="الرقم القومي (يجب أن يكون مميزاً)" class="p-2 border rounded" required>
                 <input type="text" id="casePhone" placeholder="رقم الهاتف" class="p-2 border rounded">
-                <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded">
-                <div class="col-span-2 flex justify-end gap-2 mt-4">
-                    <button type="button" data-toggle-modal="caseModal" class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
-                    <button type="submit" class="bg-emerald-600 text-white px-6 py-2 rounded-lg">حفظ</button>
+                <input type="number" id="caseFamilyCount" placeholder="عدد أفراد الأسرة" class="p-2 border rounded">
+                <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded col-span-2">
+                <input type="text" id="caseDetails" placeholder="تفاصيل وحالة المتقدم" class="p-2 border rounded col-span-2">
+                <input type="text" id="caseNotes" placeholder="أية ملاحظات إضافية" class="p-2 border rounded col-span-2">
+                
+                <div class="col-span-2 border p-4 rounded-lg bg-gray-50 flex flex-col gap-2">
+                    <label class="font-bold text-sm">المستندات والصور المتوفرة</label>
+                    <input type="file" id="caseDoc" accept="image/*,.pdf" class="w-full border p-2 bg-white rounded">
+                    <p id="caseUploadStatus" class="text-xs text-blue-600"></p>
+                </div>
+
+                <div class="col-span-2 flex justify-end gap-2 mt-4 border-t pt-4">
+                    <button type="button" data-toggle-modal="caseModal" class="bg-gray-200 px-6 py-2 rounded-lg shadow-sm">إلغاء</button>
+                    <button type="submit" id="saveCaseBtn" class="bg-emerald-600 text-white px-8 py-2 rounded-lg font-bold shadow-sm">حفظ وتأكيد</button>
                 </div>
             </form>
         </div>
