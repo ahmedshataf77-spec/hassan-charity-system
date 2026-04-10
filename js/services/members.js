@@ -1,6 +1,29 @@
-import { db, storage, ref, push, onValue, remove, storageRef, uploadBytes, getDownloadURL } from '../config/firebase.js';
+import { db, ref, push, onValue, remove } from '../config/firebase.js';
 import { toggleModal } from '../ui/modals.js';
 import { showView } from '../ui/navigation.js';
+
+const IMGBB_API_KEY = 'e98b65a72fd65751b8aeab8a952c7059';
+
+async function uploadImageToImgBB(file) {
+    const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+
+    const formData = new FormData();
+    formData.append('image', base64);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+    });
+
+    const json = await res.json();
+    if (json.success) return json.data.url;
+    throw new Error('ImgBB upload failed');
+}
 
 export function initMembersService() {
     // Watch for click on 'Members' navigation
@@ -30,17 +53,14 @@ export function initMembersService() {
 
             if (fileInput && fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                const fileRef = storageRef(storage, 'members_docs/' + Date.now() + '_' + file.name);
-                
-                if (statusText) statusText.innerText = 'جاري رفع الملف...';
-                
+                if (statusText) statusText.innerText = '⏳ جاري رفع الصورة...';
                 try {
-                    await uploadBytes(fileRef, file);
-                    fileUrl = await getDownloadURL(fileRef);
-                    if (statusText) statusText.innerText = 'تم الرفع بنجاح!';
+                    fileUrl = await uploadImageToImgBB(file);
+                    if (statusText) statusText.innerText = '✅ تم رفع الصورة بنجاح!';
                 } catch (err) {
-                    console.error("Upload error", err);
-                    if (statusText) statusText.innerText = 'حدث خطأ أثناء الرفع.';
+                    console.error("ImgBB upload error", err);
+                    if (statusText) statusText.innerText = '⚠️ تعذّر رفع الصورة - سيتم الحفظ بدون صورة.';
+                    fileUrl = '';
                 }
             }
 
