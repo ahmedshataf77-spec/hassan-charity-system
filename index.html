@@ -7,17 +7,7 @@
     <title>نظام جمعية مسجد حسان</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            transition: 0.3s;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body class="p-6">
@@ -28,13 +18,13 @@
 
     <!-- الشاشة الرئيسية -->
     <div id="mainDashboard" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        <div onclick="showView('managementDashboard')"
+        <div id="nav-management"
             class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
             <div class="bg-blue-100 p-4 rounded-xl mb-4 text-blue-600">⚙️</div>
             <h2 class="text-xl font-bold mb-2">الإدارة</h2>
             <span class="text-blue-600 font-bold">عرض التفاصيل ←</span>
         </div>
-        <div onclick="loadSection('الحالات', 'casesSection')"
+        <div id="nav-cases"
             class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
             <div class="bg-emerald-100 p-4 rounded-xl mb-4 text-emerald-600">👥</div>
             <h2 class="text-xl font-bold mb-2">الحالات</h2>
@@ -45,17 +35,17 @@
     <!-- شاشة الإدارة -->
     <div id="managementDashboard" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
         <div class="col-span-full mb-4">
-            <button onclick="showView('mainDashboard')" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع
+            <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع
                 للرئيسية</button>
             <h2 class="text-2xl font-bold mt-4 mb-2 text-center">الإدارة</h2>
         </div>
-        <div onclick="loadSection('أعضاء', 'membersSection')"
+        <div id="nav-members"
             class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
             <div class="bg-indigo-100 p-4 rounded-xl mb-4 text-indigo-600">👤</div>
             <h2 class="text-xl font-bold mb-2">إضافة أعضاء</h2>
             <span class="text-indigo-600 font-bold">عرض التفاصيل ←</span>
         </div>
-        <div onclick="loadRevenues()"
+        <div id="nav-revenues"
             class="card bg-white p-8 rounded-2xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center">
             <div class="bg-amber-100 p-4 rounded-xl mb-4 text-amber-600">💰</div>
             <h2 class="text-xl font-bold mb-2">إيرادات ومصروفات</h2>
@@ -66,10 +56,9 @@
     <!-- قسم الحالات -->
     <div id="casesSection" class="hidden max-w-7xl mx-auto section-view">
         <div class="flex justify-between items-center mb-6">
-            <button onclick="showView('mainDashboard')" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
+            <button data-nav-back="mainDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
             <h2 class="text-2xl font-bold">سجل الحالات</h2>
-            <button onclick="toggleModal('caseModal')" class="bg-emerald-600 text-white px-6 py-2 rounded-lg">+ إضافة
-                حالة</button>
+            <button data-toggle-modal="caseModal" class="bg-emerald-600 text-white px-6 py-2 rounded-lg">+ إضافة حالة</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
             <table class="w-full text-right text-sm">
@@ -92,11 +81,9 @@
     <!-- قسم الأعضاء -->
     <div id="membersSection" class="hidden max-w-7xl mx-auto section-view">
         <div class="flex justify-between items-center mb-6">
-            <button onclick="showView('managementDashboard')" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">←
-                رجوع</button>
+            <button data-nav-back="managementDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
             <h2 class="text-2xl font-bold">سجل الأعضاء</h2>
-            <button onclick="toggleModal('memberModal')" class="bg-indigo-600 text-white px-6 py-2 rounded-lg">+ إضافة
-                عضو</button>
+            <button data-toggle-modal="memberModal" class="bg-indigo-600 text-white px-6 py-2 rounded-lg">+ إضافة عضو</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
             <table class="w-full text-right text-sm">
@@ -121,10 +108,9 @@
     <!-- قسم الإيرادات والمصروفات -->
     <div id="revenuesSection" class="hidden max-w-7xl mx-auto section-view">
         <div class="flex justify-between items-center mb-6">
-            <button onclick="showView('managementDashboard')" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">←
-                رجوع</button>
+            <button data-nav-back="managementDashboard" class="bg-gray-200 px-4 py-2 rounded-lg text-sm">← رجوع</button>
             <h2 class="text-2xl font-bold">سجل الإيرادات والمصروفات</h2>
-            <button onclick="toggleModal('revenueModal')" class="bg-amber-600 text-white px-6 py-2 rounded-lg">+ إضافة معاملة</button>
+            <button data-toggle-modal="revenueModal" class="bg-amber-600 text-white px-6 py-2 rounded-lg">+ إضافة معاملة</button>
         </div>
 
         <h3 class="text-xl font-bold mb-4 text-emerald-700">الإيرادات العينية</h3>
@@ -193,8 +179,7 @@
                 <input type="text" id="casePhone" placeholder="رقم الهاتف" class="p-2 border rounded">
                 <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded">
                 <div class="col-span-2 flex justify-end gap-2 mt-4">
-                    <button type="button" onclick="toggleModal('caseModal')"
-                        class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
+                    <button type="button" data-toggle-modal="caseModal" class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
                     <button type="submit" class="bg-emerald-600 text-white px-6 py-2 rounded-lg">حفظ</button>
                 </div>
             </form>
@@ -221,10 +206,8 @@
                 </div>
 
                 <div class="col-span-2 flex justify-end gap-2 mt-4">
-                    <button type="button" onclick="toggleModal('memberModal')"
-                        class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
-                    <button type="submit" id="saveMemberBtn"
-                        class="bg-indigo-600 text-white px-6 py-2 rounded-lg">حفظ</button>
+                    <button type="button" data-toggle-modal="memberModal" class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
+                    <button type="submit" id="saveMemberBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg">حفظ</button>
                 </div>
             </form>
         </div>
@@ -237,12 +220,9 @@
             <h3 class="text-xl font-bold mb-6">إضافة معاملة مالية</h3>
 
             <div class="flex gap-4 mb-6">
-                <button type="button" onclick="setRevType('inkind')" id="btnRevInkind"
-                    class="flex-1 py-2 rounded-lg bg-emerald-600 text-white">إيراد عيني</button>
-                <button type="button" onclick="setRevType('cash')" id="btnRevCash"
-                    class="flex-1 py-2 rounded-lg bg-gray-200">إيراد نقدي</button>
-                <button type="button" onclick="setRevType('expense')" id="btnRevExpense"
-                    class="flex-1 py-2 rounded-lg bg-gray-200">مصروف</button>
+                <button type="button" id="btnRevInkind" class="flex-1 py-2 rounded-lg bg-emerald-600 text-white">إيراد عيني</button>
+                <button type="button" id="btnRevCash" class="flex-1 py-2 rounded-lg bg-gray-200">إيراد نقدي</button>
+                <button type="button" id="btnRevExpense" class="flex-1 py-2 rounded-lg bg-gray-200">مصروف</button>
             </div>
 
             <form id="revenueForm" class="grid grid-cols-2 gap-4">
@@ -276,293 +256,14 @@
                 </div>
 
                 <div class="col-span-2 flex justify-end gap-2 mt-4">
-                    <button type="button" onclick="toggleModal('revenueModal')"
-                        class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
+                    <button type="button" data-toggle-modal="revenueModal" class="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
                     <button type="submit" class="bg-amber-600 text-white px-6 py-2 rounded-lg">حفظ</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJXx6S96j90hMYNXerxNx7vXQ8WcuCj3dg",
-            authDomain: "charitysystem-5c4d9.firebaseapp.com",
-            projectId: "charitysystem-5c4d9",
-            storageBucket: "charitysystem-5c4d9.firebasestorage.app",
-            messagingSenderId: "4760375130441",
-            appId: "1:476037513041:web:c74b9cd103fb4ee8911d70",
-            measurementId: "G-DLQTK078R9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-
-        let currentSectionType = '';
-
-        window.showView = function (viewId) {
-            ['mainDashboard', 'casesSection', 'managementDashboard', 'membersSection', 'revenuesSection'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-        }
-
-        window.toggleModal = (modalId) => {
-            const modal = document.getElementById(modalId);
-            modal.classList.toggle('hidden');
-        }
-
-        window.loadSection = function (category, viewId) {
-            currentSectionType = category;
-            showView(viewId);
-
-            if (category === 'الحالات') {
-                onValue(ref(db, 'cases'), (snapshot) => {
-                    const data = snapshot.val();
-                    let records = [];
-                    for (let id in data) records.push({ id, ...data[id] });
-                    renderCasesTable(records);
-                });
-            } else if (category === 'أعضاء') {
-                onValue(ref(db, 'members'), (snapshot) => {
-                    const data = snapshot.val();
-                    let records = [];
-                    for (let id in data) records.push({ id, ...data[id] });
-                    renderMembersTable(records);
-                });
-            }
-        }
-
-        window.loadRevenues = function () {
-            showView('revenuesSection');
-
-            onValue(ref(db, 'revenues_inkind'), (snapshot) => {
-                const data = snapshot.val();
-                let records = [];
-                for (let id in data) records.push({ id, ...data[id] });
-                renderInkindTable(records);
-            });
-
-            onValue(ref(db, 'revenues_cash'), (snapshot) => {
-                const data = snapshot.val();
-                let records = [];
-                for (let id in data) records.push({ id, ...data[id] });
-                renderCashTable(records);
-            });
-
-            onValue(ref(db, 'expenses'), (snapshot) => {
-                const data = snapshot.val();
-                let records = [];
-                for (let id in data) records.push({ id, ...data[id] });
-                renderExpensesTable(records);
-            });
-        }
-
-        // Cases Submit
-        document.getElementById('caseForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const record = {
-                name: document.getElementById('caseName').value,
-                amount: document.getElementById('caseAmount').value,
-                nationalId: document.getElementById('caseNationalId').value,
-                phone: document.getElementById('casePhone').value,
-                address: document.getElementById('caseAddress').value
-            };
-            push(ref(db, 'cases'), record);
-            toggleModal('caseModal');
-            e.target.reset();
-        };
-
-        // Members Submit
-        document.getElementById('memberForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('saveMemberBtn');
-            btn.innerText = 'جاري الحفظ...';
-            btn.disabled = true;
-
-            let fileUrl = '';
-            const fileInput = document.getElementById('memDoc');
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const fileRef = storageRef(storage, 'members_docs/' + Date.now() + '_' + file.name);
-                document.getElementById('uploadStatus').innerText = 'جاري رفع الملف...';
-                try {
-                    await uploadBytes(fileRef, file);
-                    fileUrl = await getDownloadURL(fileRef);
-                    document.getElementById('uploadStatus').innerText = 'تم الرفع بنجاح!';
-                } catch (err) {
-                    console.error("Upload error", err);
-                    document.getElementById('uploadStatus').innerText = 'حدث خطأ أثناء الرفع.';
-                }
-            }
-
-            const record = {
-                name: document.getElementById('memName').value,
-                nationalId: document.getElementById('memNationalId').value,
-                phone: document.getElementById('memPhone').value,
-                address: document.getElementById('memAddress').value,
-                job: document.getElementById('memJob').value,
-                notes: document.getElementById('memNotes').value,
-                documentUrl: fileUrl
-            };
-
-            push(ref(db, 'members'), record);
-            toggleModal('memberModal');
-            e.target.reset();
-            document.getElementById('uploadStatus').innerText = '';
-            btn.innerText = 'حفظ';
-            btn.disabled = false;
-        };
-
-        window.setRevType = function (type) {
-            document.getElementById('revType').value = type;
-
-            document.getElementById('inkindFields').classList.add('hidden');
-            document.getElementById('cashFields').classList.add('hidden');
-            document.getElementById('expenseFields').classList.add('hidden');
-
-            document.getElementById('btnRevInkind').className = "flex-1 py-2 rounded-lg bg-gray-200";
-            document.getElementById('btnRevCash').className = "flex-1 py-2 rounded-lg bg-gray-200";
-            document.getElementById('btnRevExpense').className = "flex-1 py-2 rounded-lg bg-gray-200";
-
-            if (type === 'inkind') {
-                document.getElementById('btnRevInkind').className = "flex-1 py-2 rounded-lg bg-emerald-600 text-white";
-                document.getElementById('inkindFields').classList.remove('hidden');
-            } else if (type === 'cash') {
-                document.getElementById('btnRevCash').className = "flex-1 py-2 rounded-lg bg-emerald-600 text-white";
-                document.getElementById('cashFields').classList.remove('hidden');
-            } else if (type === 'expense') {
-                document.getElementById('btnRevExpense').className = "flex-1 py-2 rounded-lg bg-red-600 text-white";
-                document.getElementById('expenseFields').classList.remove('hidden');
-            }
-        }
-
-        // Revenues Submit
-        document.getElementById('revenueForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const type = document.getElementById('revType').value;
-
-            if (type === 'inkind') {
-                const record = {
-                    name: document.getElementById('inkindName').value,
-                    entity: document.getElementById('inkindEntity').value,
-                    item: document.getElementById('inkindItem').value,
-                    quantity: document.getElementById('inkindQuantity').value,
-                    date: document.getElementById('inkindDate').value,
-                    notes: document.getElementById('inkindNotes').value
-                };
-                push(ref(db, 'revenues_inkind'), record);
-            } else if (type === 'cash') {
-                const record = {
-                    name: document.getElementById('cashName').value,
-                    entity: document.getElementById('cashEntity').value,
-                    item: document.getElementById('cashItem').value,
-                    amount: document.getElementById('cashAmount').value
-                };
-                push(ref(db, 'revenues_cash'), record);
-            } else if (type === 'expense') {
-                const record = {
-                    amount: document.getElementById('expAmount').value,
-                    date: document.getElementById('expDate').value,
-                    item: document.getElementById('expItem').value,
-                    decision: document.getElementById('expDecision').value,
-                    spender: document.getElementById('expSpender').value
-                };
-                push(ref(db, 'expenses'), record);
-            }
-            toggleModal('revenueModal');
-            e.target.reset();
-            setRevType('inkind');
-        };
-
-        function renderCasesTable(records) {
-            const tbody = document.getElementById('casesTableBody');
-            if (!records.length) return tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-gray-400">لا توجد بيانات</td></tr>';
-            tbody.innerHTML = records.map((r, i) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${i + 1}</td><td class="p-4 font-bold">${r.name || '-'}</td><td class="p-4">${r.amount || '-'}</td>
-                    <td class="p-4">${r.nationalId || '-'}</td><td class="p-4">${r.phone || '-'}</td><td class="p-4">${r.address || '-'}</td>
-                    <td class="p-4"><button onclick="deleteData('cases', '${r.id}')" class="text-red-500 text-sm">حذف</button></td>
-                </tr>`).join('');
-        }
-
-        function renderMembersTable(records) {
-            const tbody = document.getElementById('membersTableBody');
-            if (!records.length) return tbody.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-gray-400">لا توجد بيانات</td></tr>';
-            tbody.innerHTML = records.map((r, i) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${i + 1}</td><td class="p-4 font-bold">${r.name || '-'}</td><td class="p-4">${r.nationalId || '-'}</td>
-                    <td class="p-4">${r.phone || '-'}</td><td class="p-4">${r.address || '-'}</td><td class="p-4">${r.job || '-'}</td>
-                    <td class="p-4">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline">عرض المستند</a>` : 'لا يوجد'}</td>
-                    <td class="p-4 text-xs">${r.notes || '-'}</td>
-                    <td class="p-4"><button onclick="deleteData('members', '${r.id}')" class="text-red-500 text-sm">حذف</button></td>
-                </tr>`).join('');
-        }
-
-        function renderInkindTable(records) {
-            const tbody = document.getElementById('inkindTableBody');
-            if (!records.length) return tbody.innerHTML = '<tr><td colspan="8" class="p-10 text-center text-gray-400">لا توجد بيانات</td></tr>';
-            tbody.innerHTML = records.map((r, i) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${i + 1}</td><td class="p-4 font-bold">${r.name || '-'}</td><td class="p-4">${r.item || '-'}</td>
-                    <td class="p-4">${r.quantity || '-'}</td><td class="p-4">${r.entity || '-'}</td><td class="p-4">${r.date || '-'}</td>
-                    <td class="p-4 text-xs">${r.notes || '-'}</td>
-                    <td class="p-4"><button onclick="deleteData('revenues_inkind', '${r.id}')" class="text-red-500 text-sm">حذف</button></td>
-                </tr>`).join('');
-        }
-
-        function renderCashTable(records) {
-            const tbody = document.getElementById('cashTableBody');
-            if (!records.length) return tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-gray-400">لا توجد بيانات</td></tr>';
-            tbody.innerHTML = records.map((r, i) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${i + 1}</td><td class="p-4 font-bold">${r.name || '-'}</td><td class="p-4">${r.entity || '-'}</td>
-                    <td class="p-4 font-bold text-emerald-600">${r.amount || '-'}</td><td class="p-4">${r.item || '-'}</td>
-                    <td class="p-4"><button onclick="deleteData('revenues_cash', '${r.id}')" class="text-red-500 text-sm">حذف</button></td>
-                </tr>`).join('');
-        }
-
-        function renderExpensesTable(records) {
-            const tbody = document.getElementById('expensesTableBody');
-            if (!records.length) return tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-gray-400">لا توجد بيانات</td></tr>';
-            tbody.innerHTML = records.map((r, i) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${i + 1}</td>
-                    <td class="p-4 font-bold text-red-600">${r.amount || '-'}</td>
-                    <td class="p-4">${r.date || '-'}</td>
-                    <td class="p-4">${r.item || '-'}</td>
-                    <td class="p-4">${r.decision || '-'}</td>
-                    <td class="p-4">${r.spender || '-'}</td>
-                    <td class="p-4"><button onclick="deleteData('expenses', '${r.id}')" class="text-red-500 text-sm">حذف</button></td>
-                </tr>`).join('');
-        }
-
-        function renderExpensesTable(records) {
-            const tbody = document.getElementById('expensesTableBody');
-            if (!records.length) return tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-gray-400">لا توجد بيانات</td></tr>';
-            tbody.innerHTML = records.map((r, i) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4">${i + 1}</td>
-                    <td class="p-4 font-bold text-red-600">${r.amount || '-'}</td>
-                    <td class="p-4">${r.date || '-'}</td>
-                    <td class="p-4">${r.item || '-'}</td>
-                    <td class="p-4">${r.decision || '-'}</td>
-                    <td class="p-4">${r.spender || '-'}</td>
-                    <td class="p-4"><button onclick="deleteData('expenses', '${r.id}')" class="text-red-500 text-sm">حذف</button></td>
-                </tr>`).join('');
-        }
-
-        window.deleteData = (path, id) => {
-            if (confirm('هل أنت متأكد من الحذف؟')) {
-                remove(ref(db, path + '/' + id));
-            }
-        }
-    </script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 
 </html>
