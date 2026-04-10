@@ -61,14 +61,25 @@ export function initCasesService() {
             if (fileInput && fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const fileRef = storageRef(storage, 'cases_docs/' + Date.now() + '_' + file.name);
-                if (statusText) statusText.innerText = 'جاري رفع الملف...';
+                if (statusText) statusText.innerText = 'جاري رفع الملف... (قد يستغرق بضع ثوانٍ)';
                 try {
-                    await uploadBytes(fileRef, file);
+                    // Add a 15-second timeout to avoid indefinite hang
+                    const uploadPromise = uploadBytes(fileRef, file);
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('timeout')), 15000)
+                    );
+                    await Promise.race([uploadPromise, timeoutPromise]);
                     documentUrl = await getDownloadURL(fileRef);
-                    if (statusText) statusText.innerText = 'تم الرفع بنجاح!';
+                    if (statusText) statusText.innerText = '✅ تم الرفع بنجاح!';
                 } catch (err) {
                     console.error("Upload error", err);
-                    if (statusText) statusText.innerText = 'حدث خطأ أثناء الرفع.';
+                    if (err.message === 'timeout') {
+                        if (statusText) statusText.innerText = '⚠️ انتهت مهلة الرفع - سيتم الحفظ بدون صورة.';
+                    } else {
+                        if (statusText) statusText.innerText = '⚠️ تعذّر رفع الملف - سيتم الحفظ بدون صورة.';
+                    }
+                    // Continue saving without image - don't block the form
+                    documentUrl = '';
                 }
             }
 
