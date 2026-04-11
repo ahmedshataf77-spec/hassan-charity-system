@@ -205,9 +205,9 @@ function renderCasesTable(records) {
     const head = document.getElementById('casesTableHeader');
     if (head) {
         if (currentTab === 'orphans') {
-            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">اسم اليتيم</th><th class="p-3">اسم الأم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">التاريخ</th><th class="p-3">العنوان</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
+            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">اسم اليتيم</th><th class="p-3">اسم الأم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">العنوان</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3">التاريخ</th><th class="p-3 text-center">إجراء</th></tr>`;
         } else {
-            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">الاسم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">التاريخ</th><th class="p-3">العنوان</th><th class="p-3 text-center">الأسرة</th><th class="p-3">الحالة</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
+            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">الاسم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">العنوان</th><th class="p-3 text-center">الأسرة</th><th class="p-3">الحالة</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3">التاريخ</th><th class="p-3 text-center">إجراء</th></tr>`;
         }
     }
 
@@ -225,10 +225,10 @@ function renderCasesTable(records) {
                 <td class="p-3">${r.motherName || '-'}</td>
                 <td class="p-3">${r.nationalId || '-'}</td>
                 <td class="p-3">${r.phone || '-'}</td>
-                <td class="p-3 text-xs">${r.date || '-'}</td>
                 <td class="p-3 text-sm">${r.address || '-'}</td>
                 <td class="p-3">${getDocsHtml(r)}</td>
                 <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
+                <td class="p-3 text-xs">${r.date || '-'}</td>
                 <td class="p-3">
                     <div class="flex gap-2 justify-center">
                         <button data-edit-case="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>
@@ -243,12 +243,12 @@ function renderCasesTable(records) {
                 <td class="p-3 font-bold">${r.name || '-'}</td>
                 <td class="p-3">${r.nationalId || '-'}</td>
                 <td class="p-3">${r.phone || '-'}</td>
-                <td class="p-3 text-xs">${r.date || '-'}</td>
                 <td class="p-3 text-sm">${r.address || '-'}</td>
                 <td class="p-3 text-center">${r.familyCount || '-'}</td>
                 <td class="p-3 text-sm">${r.details || '-'}</td>
                 <td class="p-3">${getDocsHtml(r)}</td>
                 <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
+                <td class="p-3 text-xs">${r.date || '-'}</td>
                 <td class="p-3">
                     <div class="flex gap-2 justify-center">
                         <button data-edit-case="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>

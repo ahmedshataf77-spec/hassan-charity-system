@@ -180,6 +180,7 @@
                                 <th class="p-3">الوظيفة</th>
                                 <th class="p-3">المستندات</th>
                                 <th class="p-3">الملاحظات</th>
+                                <th class="p-3">التاريخ</th>
                                 <th class="p-3 text-center">إجراء</th>
                             </tr>
                         </thead>
@@ -202,8 +203,8 @@
                         <thead class="bg-gray-50 border-b">
                             <tr>
                                 <th class="p-4">م</th><th class="p-4">الاسم</th><th class="p-4">البند</th>
-                                <th class="p-4">الكمية</th><th class="p-4">الجهة</th><th class="p-4">التاريخ</th>
-                                <th class="p-4">الملاحظات</th><th class="p-4">إجراء</th>
+                                <th class="p-4">الكمية</th><th class="p-4">الجهة</th>
+                                <th class="p-4">الملاحظات</th><th class="p-4">التاريخ</th><th class="p-4">إجراء</th>
                             </tr>
                         </thead>
                         <tbody id="inkindTableBody"></tbody>
@@ -228,9 +229,8 @@
                     <table class="w-full text-right text-sm">
                         <thead class="bg-gray-50 border-b">
                             <tr>
-                                <th class="p-4">م</th><th class="p-4">المبلغ</th><th class="p-4">التاريخ</th>
                                 <th class="p-4">البند</th><th class="p-4">رقم القرار</th>
-                                <th class="p-4">القائم بالصرف</th><th class="p-4">إجراء</th>
+                                <th class="p-4">القائم بالصرف</th><th class="p-4">التاريخ</th><th class="p-4">إجراء</th>
                             </tr>
                         </thead>
                         <tbody id="expensesTableBody"></tbody>
@@ -294,6 +294,7 @@
                 <input type="text" id="memPhone" placeholder="رقم الهاتف" class="p-2 border rounded">
                 <input type="text" id="memAddress" placeholder="العنوان" class="p-2 border rounded">
                 <input type="text" id="memJob" placeholder="الوظيفة" class="p-2 border rounded">
+                <input type="date" id="memDate" class="p-2 border rounded text-gray-400" title="تاريخ الانضمام">
                 <input type="text" id="memNotes" placeholder="الملاحظات" class="p-2 border rounded">
                 <div class="col-span-2 border p-4 rounded-lg bg-gray-50 flex flex-col gap-2">
                     <label class="font-bold text-sm">المستندات (صورة)</label>

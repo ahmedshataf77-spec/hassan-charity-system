@@ -70,6 +70,7 @@ export function initMembersService() {
                 phone: document.getElementById('memPhone').value,
                 address: document.getElementById('memAddress').value,
                 job: document.getElementById('memJob').value,
+                date: document.getElementById('memDate').value,
                 notes: document.getElementById('memNotes').value,
             };
 
@@ -163,6 +164,7 @@ function renderMembersTable(records) {
             <td class="p-3">${r.job || '-'}</td>
             <td class="p-3">${getDocsHtml(r)}</td>
             <td class="p-3 text-xs">${r.notes || '-'}</td>
+            <td class="p-3 text-xs">${r.date || '-'}</td>
             <td class="p-3">
                 <div class="flex gap-2 justify-center">
                     <button data-edit-member="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>
@@ -185,6 +187,7 @@ function renderMembersTable(records) {
             document.getElementById('memPhone').value = record.phone || '';
             document.getElementById('memAddress').value = record.address || '';
             document.getElementById('memJob').value = record.job || '';
+            document.getElementById('memDate').value = record.date || '';
             document.getElementById('memNotes').value = record.notes || '';
 
             document.getElementById('memberModalTitle').innerText = 'تعديل بيانات العضو ✏️';

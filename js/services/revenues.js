@@ -118,8 +118,8 @@ function renderInkindTable(records) {
             <td class="p-4">${r.item || '-'}</td>
             <td class="p-4">${r.quantity || '-'}</td>
             <td class="p-4">${r.entity || '-'}</td>
-            <td class="p-4">${r.date || '-'}</td>
             <td class="p-4 text-xs">${r.notes || '-'}</td>
+            <td class="p-4">${r.date || '-'}</td>
             <td class="p-4"><button data-delete-id="${r.id}" class="text-red-500 text-sm">حذف</button></td>
         </tr>
     `).join('');
@@ -163,11 +163,10 @@ function renderExpensesTable(records) {
     tbody.innerHTML = records.map((r, i) => `
         <tr class="border-b hover:bg-gray-50">
             <td class="p-4">${i + 1}</td>
-            <td class="p-4 font-bold text-red-600">${r.amount || '-'}</td>
-            <td class="p-4">${r.date || '-'}</td>
             <td class="p-4">${r.item || '-'}</td>
             <td class="p-4">${r.decision || '-'}</td>
             <td class="p-4">${r.spender || '-'}</td>
+            <td class="p-4">${r.date || '-'}</td>
             <td class="p-4"><button data-delete-id="${r.id}" class="text-red-500 text-sm">حذف</button></td>
         </tr>
     `).join('');
