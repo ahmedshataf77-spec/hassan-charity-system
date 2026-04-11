@@ -135,7 +135,7 @@
 
                 <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
                     <table class="w-full text-right text-sm" id="casesTable">
-                        <thead class="bg-gray-50 border-b">
+                        <thead class="bg-gray-50 border-b" id="casesTableHeader">
                             <tr>
                                 <th class="p-3 text-center">م</th>
                                 <th class="p-3">الاسم</th>
@@ -258,9 +258,17 @@
                 <input type="text" id="caseName" placeholder="الاسم الكامل" class="p-2 border rounded" required>
                 <input type="text" id="caseNationalId" placeholder="الرقم القومي (يجب أن يكون مميزاً)" class="p-2 border rounded" required>
                 <input type="text" id="casePhone" placeholder="رقم الهاتف" class="p-2 border rounded">
-                <input type="number" id="caseFamilyCount" placeholder="عدد أفراد الأسرة" class="p-2 border rounded">
-                <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded col-span-2">
-                <input type="text" id="caseDetails" placeholder="تفاصيل وحالة المتقدم" class="p-2 border rounded col-span-2">
+                <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded">
+                
+                <!-- حقول خاصة بحالات الأيتام -->
+                <input type="text" id="caseMotherName" placeholder="اسم الأم" class="p-2 border rounded col-span-2 hidden">
+                
+                <!-- حقول للحالات الأخرى -->
+                <div id="generalCaseFields" class="col-span-2 grid grid-cols-2 gap-4">
+                    <input type="number" id="caseFamilyCount" placeholder="عدد أفراد الأسرة" class="p-2 border rounded">
+                    <input type="text" id="caseDetails" placeholder="تفاصيل وحالة المتقدم" class="p-2 border rounded">
+                </div>
+
                 <input type="text" id="caseNotes" placeholder="أية ملاحظات إضافية" class="p-2 border rounded col-span-2">
                 <div class="col-span-2 border p-4 rounded-lg bg-gray-50 flex flex-col gap-2">
                     <label class="font-bold text-sm">المستندات والصور المتوفرة</label>

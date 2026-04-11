@@ -53,6 +53,18 @@ export function initCasesService() {
         searchInput.addEventListener('input', applySearch);
     }
 
+    // Category change listener to toggle fields
+    const caseCategorySelect = document.getElementById('caseCategory');
+    if (caseCategorySelect) {
+        caseCategorySelect.addEventListener('change', (e) => {
+            const isOrphans = e.target.value === 'orphans';
+            const motherInput = document.getElementById('caseMotherName');
+            const generalFields = document.getElementById('generalCaseFields');
+            if (motherInput) motherInput.classList.toggle('hidden', !isOrphans);
+            if (generalFields) generalFields.classList.toggle('hidden', !!isOrphans);
+        });
+    }
+
     // Form submit listener
     const caseForm = document.getElementById('caseForm');
     if (caseForm) {
@@ -98,10 +110,11 @@ export function initCasesService() {
                 name: nameInput,
                 nationalId: nIdInput,
                 phone: document.getElementById('casePhone').value,
-                familyCount: document.getElementById('caseFamilyCount').value,
                 address: document.getElementById('caseAddress').value,
-                details: document.getElementById('caseDetails').value,
                 notes: document.getElementById('caseNotes').value,
+                motherName: document.getElementById('caseMotherName').value,
+                familyCount: document.getElementById('caseFamilyCount').value,
+                details: document.getElementById('caseDetails').value,
             };
 
             // Keep old image if no new file uploaded
@@ -137,15 +150,15 @@ export function initCasesService() {
         });
     }
 
-    // Reset edit mode when modal closes
+    // Reset edit mode when modal closes or opens fresh
     document.querySelectorAll('[data-toggle-modal="caseModal"]').forEach(btn => {
         btn.addEventListener('click', () => {
-            if (editingCaseId) {
-                editingCaseId = null;
-                document.getElementById('caseForm').reset();
-                document.getElementById('caseModalTitle').innerText = 'إضافة حالة جديدة';
-                document.getElementById('saveCaseBtn').innerText = 'حفظ وتأكيد';
-            }
+            editingCaseId = null;
+            document.getElementById('caseForm').reset();
+            document.getElementById('caseModalTitle').innerText = 'إضافة حالة جديدة';
+            document.getElementById('saveCaseBtn').innerText = 'حفظ وتأكيد';
+            // Force UI toggle reset
+            document.getElementById('caseCategory')?.dispatchEvent(new Event('change'));
         });
     });
 
@@ -181,30 +194,60 @@ function renderCasesTable(records) {
     const tbody = document.getElementById('casesTableBody');
     if (!tbody) return;
 
+    const head = document.getElementById('casesTableHeader');
+    if (head) {
+        if (currentTab === 'orphans') {
+            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">اسم اليتيم</th><th class="p-3">اسم الأم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">العنوان</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
+        } else {
+            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">الاسم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">العنوان</th><th class="p-3 text-center">الأسرة</th><th class="p-3">الحالة</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
+        }
+    }
+
     if (!records || !records.length) {
         tbody.innerHTML = '<tr><td colspan="11" class="p-10 text-center text-gray-400">لا توجد بيانات في هذا القسم أو لا توجد نتائج بحث</td></tr>';
         return;
     }
 
-    tbody.innerHTML = records.map((r, i) => `
-        <tr class="border-b hover:bg-gray-50">
-            <td class="p-3 text-center">${i + 1}</td>
-            <td class="p-3 font-bold">${r.name || '-'}</td>
-            <td class="p-3">${r.nationalId || '-'}</td>
-            <td class="p-3">${r.phone || '-'}</td>
-            <td class="p-3 text-sm">${r.address || '-'}</td>
-            <td class="p-3 text-center">${r.familyCount || '-'}</td>
-            <td class="p-3 text-sm">${r.details || '-'}</td>
-            <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض</a>` : 'لا يوجد'}</td>
-            <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
-            <td class="p-3">
-                <div class="flex gap-2 justify-center">
-                    <button data-edit-case="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>
-                    <button data-delete-case="${r.id}" class="text-red-500 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50">حذف</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = records.map((r, i) => {
+        if (currentTab === 'orphans') {
+            return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 text-center">${i + 1}</td>
+                <td class="p-3 font-bold">${r.name || '-'}</td>
+                <td class="p-3">${r.motherName || '-'}</td>
+                <td class="p-3">${r.nationalId || '-'}</td>
+                <td class="p-3">${r.phone || '-'}</td>
+                <td class="p-3 text-sm">${r.address || '-'}</td>
+                <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض</a>` : 'لا يوجد'}</td>
+                <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
+                <td class="p-3">
+                    <div class="flex gap-2 justify-center">
+                        <button data-edit-case="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>
+                        <button data-delete-case="${r.id}" class="text-red-500 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50">حذف</button>
+                    </div>
+                </td>
+            </tr>`;
+        } else {
+            return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 text-center">${i + 1}</td>
+                <td class="p-3 font-bold">${r.name || '-'}</td>
+                <td class="p-3">${r.nationalId || '-'}</td>
+                <td class="p-3">${r.phone || '-'}</td>
+                <td class="p-3 text-sm">${r.address || '-'}</td>
+                <td class="p-3 text-center">${r.familyCount || '-'}</td>
+                <td class="p-3 text-sm">${r.details || '-'}</td>
+                <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض</a>` : 'لا يوجد'}</td>
+                <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
+                <td class="p-3">
+                    <div class="flex gap-2 justify-center">
+                        <button data-edit-case="${r.id}" class="text-blue-500 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50">تعديل</button>
+                        <button data-delete-case="${r.id}" class="text-red-500 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50">حذف</button>
+                    </div>
+                </td>
+            </tr>`;
+        }
+    }).join('');
 
     // Attach edit listeners
     tbody.querySelectorAll('[data-edit-case]').forEach(btn => {
@@ -219,10 +262,18 @@ function renderCasesTable(records) {
             document.getElementById('caseName').value = record.name || '';
             document.getElementById('caseNationalId').value = record.nationalId || '';
             document.getElementById('casePhone').value = record.phone || '';
-            document.getElementById('caseFamilyCount').value = record.familyCount || '';
             document.getElementById('caseAddress').value = record.address || '';
-            document.getElementById('caseDetails').value = record.details || '';
             document.getElementById('caseNotes').value = record.notes || '';
+            document.getElementById('caseMotherName').value = record.motherName || '';
+            document.getElementById('caseFamilyCount').value = record.familyCount || '';
+            document.getElementById('caseDetails').value = record.details || '';
+
+            // Toggle logic directly
+            const isOrphans = (record.category === 'orphans');
+            const motherInput = document.getElementById('caseMotherName');
+            const generalFields = document.getElementById('generalCaseFields');
+            if (motherInput) motherInput.classList.toggle('hidden', !isOrphans);
+            if (generalFields) generalFields.classList.toggle('hidden', !!isOrphans);
 
             document.getElementById('caseModalTitle').innerText = 'تعديل بيانات الحالة ✏️';
             document.getElementById('saveCaseBtn').innerText = 'حفظ التعديلات';
@@ -246,17 +297,31 @@ function exportToExcel() {
     const filteredRecords = allCases.filter(r => (r.category || 'permanent') === currentTab);
     if (!filteredRecords.length) { alert("لا توجد بيانات لتصديرها."); return; }
 
-    const exportData = filteredRecords.map((r, index) => ({
-        "م": index + 1,
-        "الاسم": r.name || "",
-        "الرقم القومي": r.nationalId || "",
-        "الهاتف": r.phone || "",
-        "العنوان": r.address || "",
-        "عدد أفراد الأسرة": r.familyCount || "",
-        "الحالة": r.details || "",
-        "الملاحظات": r.notes || "",
-        "رابط المستند": r.documentUrl || "لا يوجد"
-    }));
+    let exportData;
+    if (currentTab === 'orphans') {
+        exportData = filteredRecords.map((r, index) => ({
+            "م": index + 1,
+            "اسم اليتيم": r.name || "",
+            "اسم الأم": r.motherName || "",
+            "الرقم القومي": r.nationalId || "",
+            "الهاتف": r.phone || "",
+            "العنوان": r.address || "",
+            "الملاحظات": r.notes || "",
+            "رابط المستند": r.documentUrl || "لا يوجد"
+        }));
+    } else {
+        exportData = filteredRecords.map((r, index) => ({
+            "م": index + 1,
+            "الاسم": r.name || "",
+            "الرقم القومي": r.nationalId || "",
+            "الهاتف": r.phone || "",
+            "العنوان": r.address || "",
+            "عدد أفراد الأسرة": r.familyCount || "",
+            "الحالة": r.details || "",
+            "الملاحظات": r.notes || "",
+            "رابط المستند": r.documentUrl || "لا يوجد"
+        }));
+    }
 
     const labels = { permanent: 'حالات_دائم', temporary: 'حالات_مؤقتة', orphans: 'أيتام', support: 'تجهيز_ودعم' };
     const ws = XLSX.utils.json_to_sheet(exportData);
