@@ -216,7 +216,7 @@
                         <thead class="bg-gray-50 border-b">
                             <tr>
                                 <th class="p-4">م</th><th class="p-4">الاسم</th><th class="p-4">الجهة</th>
-                                <th class="p-4">المبلغ</th><th class="p-4">البند</th><th class="p-4">إجراء</th>
+                                <th class="p-4">المبلغ</th><th class="p-4">البند</th><th class="p-4">التاريخ</th><th class="p-4">إجراء</th>
                             </tr>
                         </thead>
                         <tbody id="cashTableBody"></tbody>
@@ -258,7 +258,8 @@
                 <input type="text" id="caseName" placeholder="الاسم الكامل" class="p-2 border rounded" required>
                 <input type="text" id="caseNationalId" placeholder="الرقم القومي (يجب أن يكون مميزاً)" class="p-2 border rounded" required>
                 <input type="text" id="casePhone" placeholder="رقم الهاتف" class="p-2 border rounded">
-                <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded">
+                <input type="date" id="caseDate" class="p-2 border rounded text-gray-500" title="التاريخ">
+                <input type="text" id="caseAddress" placeholder="العنوان" class="p-2 border rounded col-span-2">
                 
                 <!-- حقول خاصة بحالات الأيتام -->
                 <input type="text" id="caseMotherName" placeholder="اسم الأم" class="p-2 border rounded col-span-2 hidden">
@@ -331,6 +332,7 @@
                     <input type="text" id="cashEntity" placeholder="الجهة" class="p-2 border rounded">
                     <input type="text" id="cashItem" placeholder="البند" class="p-2 border rounded">
                     <input type="number" id="cashAmount" placeholder="المبلغ" class="p-2 border rounded">
+                    <input type="date" id="cashDate" class="p-2 border rounded text-gray-500">
                 </div>
                 <div id="expenseFields" class="col-span-2 grid grid-cols-2 gap-4 hidden">
                     <input type="number" id="expAmount" placeholder="المبلغ" class="p-2 border rounded">

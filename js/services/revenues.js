@@ -37,7 +37,8 @@ export function initRevenuesService() {
                         name: document.getElementById('cashName').value,
                         entity: document.getElementById('cashEntity').value,
                         item: document.getElementById('cashItem').value,
-                        amount: document.getElementById('cashAmount').value
+                        amount: document.getElementById('cashAmount').value,
+                        date: document.getElementById('cashDate').value
                     };
                     await push(ref(db, 'revenues_cash'), record);
 
@@ -142,6 +143,7 @@ function renderCashTable(records) {
             <td class="p-4">${r.entity || '-'}</td>
             <td class="p-4 font-bold text-emerald-600">${r.amount || '-'}</td>
             <td class="p-4">${r.item || '-'}</td>
+            <td class="p-4 text-xs">${r.date || '-'}</td>
             <td class="p-4"><button data-delete-id="${r.id}" class="text-red-500 text-sm">حذف</button></td>
         </tr>
     `).join('');

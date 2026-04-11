@@ -111,6 +111,7 @@ export function initCasesService() {
                 nationalId: nIdInput,
                 phone: document.getElementById('casePhone').value,
                 address: document.getElementById('caseAddress').value,
+                date: document.getElementById('caseDate').value,
                 notes: document.getElementById('caseNotes').value,
                 motherName: document.getElementById('caseMotherName').value,
                 familyCount: document.getElementById('caseFamilyCount').value,
@@ -204,9 +205,9 @@ function renderCasesTable(records) {
     const head = document.getElementById('casesTableHeader');
     if (head) {
         if (currentTab === 'orphans') {
-            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">اسم اليتيم</th><th class="p-3">اسم الأم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">العنوان</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
+            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">اسم اليتيم</th><th class="p-3">اسم الأم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">التاريخ</th><th class="p-3">العنوان</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
         } else {
-            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">الاسم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">العنوان</th><th class="p-3 text-center">الأسرة</th><th class="p-3">الحالة</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
+            head.innerHTML = `<tr><th class="p-3 text-center">م</th><th class="p-3">الاسم</th><th class="p-3">الرقم القومي</th><th class="p-3">الهاتف</th><th class="p-3">التاريخ</th><th class="p-3">العنوان</th><th class="p-3 text-center">الأسرة</th><th class="p-3">الحالة</th><th class="p-3">المستندات</th><th class="p-3">الملاحظات</th><th class="p-3 text-center">إجراء</th></tr>`;
         }
     }
 
@@ -224,6 +225,7 @@ function renderCasesTable(records) {
                 <td class="p-3">${r.motherName || '-'}</td>
                 <td class="p-3">${r.nationalId || '-'}</td>
                 <td class="p-3">${r.phone || '-'}</td>
+                <td class="p-3 text-xs">${r.date || '-'}</td>
                 <td class="p-3 text-sm">${r.address || '-'}</td>
                 <td class="p-3">${getDocsHtml(r)}</td>
                 <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
@@ -241,6 +243,7 @@ function renderCasesTable(records) {
                 <td class="p-3 font-bold">${r.name || '-'}</td>
                 <td class="p-3">${r.nationalId || '-'}</td>
                 <td class="p-3">${r.phone || '-'}</td>
+                <td class="p-3 text-xs">${r.date || '-'}</td>
                 <td class="p-3 text-sm">${r.address || '-'}</td>
                 <td class="p-3 text-center">${r.familyCount || '-'}</td>
                 <td class="p-3 text-sm">${r.details || '-'}</td>
@@ -269,6 +272,7 @@ function renderCasesTable(records) {
             document.getElementById('caseName').value = record.name || '';
             document.getElementById('caseNationalId').value = record.nationalId || '';
             document.getElementById('casePhone').value = record.phone || '';
+            document.getElementById('caseDate').value = record.date || '';
             document.getElementById('caseAddress').value = record.address || '';
             document.getElementById('caseNotes').value = record.notes || '';
             document.getElementById('caseMotherName').value = record.motherName || '';
@@ -312,6 +316,7 @@ function exportToExcel() {
             "اسم الأم": r.motherName || "",
             "الرقم القومي": r.nationalId || "",
             "الهاتف": r.phone || "",
+            "التاريخ": r.date || "",
             "العنوان": r.address || "",
             "الملاحظات": r.notes || "",
             "رابط المستند": (r.documentUrls || (r.documentUrl ? [r.documentUrl] : [])).join(" , ") || "لا يوجد"
