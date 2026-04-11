@@ -22,6 +22,13 @@ export function initNavigation() {
     // Main dashboard cards
     const btnManagement = document.getElementById('nav-management');
     if (btnManagement) {
-        btnManagement.addEventListener('click', () => showView('managementDashboard'));
+        btnManagement.addEventListener('click', () => {
+            const pwd = prompt('الرجاء إدخال كلمة المرور الخاصة بقسم الإدارة:');
+            if (pwd === 'Awd01227022115') {
+                showView('managementDashboard');
+            } else if (pwd !== null) {
+                alert('كلمة المرور غير صحيحة ❌');
+            }
+        });
     }
 }
