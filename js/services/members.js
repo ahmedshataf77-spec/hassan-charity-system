@@ -49,19 +49,18 @@ export function initMembersService() {
 
             if (btn) { btn.innerText = 'جاري الحفظ...'; btn.disabled = true; }
 
-            let fileUrl = '';
+            let documentUrls = [];
             const fileInput = document.getElementById('memDoc');
 
             if (fileInput && fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                if (statusText) statusText.innerText = '⏳ جاري رفع الصورة...';
+                if (statusText) statusText.innerText = '⏳ جاري رفع الصور...';
                 try {
-                    fileUrl = await uploadImageToImgBB(file);
-                    if (statusText) statusText.innerText = '✅ تم رفع الصورة بنجاح!';
+                    const promises = Array.from(fileInput.files).map(file => uploadImageToImgBB(file));
+                    documentUrls = await Promise.all(promises);
+                    if (statusText) statusText.innerText = '✅ تم رفع الصور بنجاح!';
                 } catch (err) {
                     console.error("ImgBB upload error", err);
-                    if (statusText) statusText.innerText = '⚠️ تعذّر رفع الصورة - سيتم الحفظ بدون صورة.';
-                    fileUrl = '';
+                    if (statusText) statusText.innerText = '⚠️ تعذّر رفع بعض الصور - سيتم الحفظ بدون المفقود.';
                 }
             }
 
@@ -74,14 +73,14 @@ export function initMembersService() {
                 notes: document.getElementById('memNotes').value,
             };
 
-            // Keep old image if no new one uploaded
-            if (fileUrl) {
-                record.documentUrl = fileUrl;
+            // Keep old images if no new files uploaded
+            if (documentUrls.length > 0) {
+                record.documentUrls = documentUrls;
             } else if (editingMemberId) {
                 const existing = allMembers.find(r => r.id === editingMemberId);
-                record.documentUrl = existing ? (existing.documentUrl || '') : '';
+                record.documentUrls = existing ? (existing.documentUrls || (existing.documentUrl ? [existing.documentUrl] : [])) : [];
             } else {
-                record.documentUrl = '';
+                record.documentUrls = [];
             }
 
             try {
@@ -138,6 +137,13 @@ function loadMembers() {
     });
 }
 
+function getDocsHtml(r) {
+    let urls = r.documentUrls || [];
+    if (!urls.length && r.documentUrl) urls = [r.documentUrl];
+    if (!urls.length) return 'لا يوجد';
+    return urls.map((u, idx) => `<a href="${u}" target="_blank" class="text-blue-500 underline text-sm block whitespace-nowrap">صورة ${idx + 1}</a>`).join('');
+}
+
 function renderMembersTable(records) {
     const tbody = document.getElementById('membersTableBody');
     if (!tbody) return;
@@ -155,7 +161,7 @@ function renderMembersTable(records) {
             <td class="p-3">${r.phone || '-'}</td>
             <td class="p-3">${r.address || '-'}</td>
             <td class="p-3">${r.job || '-'}</td>
-            <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض المستند</a>` : 'لا يوجد'}</td>
+            <td class="p-3">${getDocsHtml(r)}</td>
             <td class="p-3 text-xs">${r.notes || '-'}</td>
             <td class="p-3">
                 <div class="flex gap-2 justify-center">

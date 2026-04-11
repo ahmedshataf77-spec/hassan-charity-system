@@ -90,18 +90,18 @@ export function initCasesService() {
 
             if (btn) { btn.innerText = 'جاري الحفظ...'; btn.disabled = true; }
 
-            let documentUrl = '';
+            let documentUrls = [];
             const fileInput = document.getElementById('caseDoc');
 
             if (fileInput && fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                if (statusText) statusText.innerText = '⏳ جاري رفع الصورة...';
+                if (statusText) statusText.innerText = '⏳ جاري رفع الصور...';
                 try {
-                    documentUrl = await uploadImageToImgBB(file);
-                    if (statusText) statusText.innerText = '✅ تم رفع الصورة بنجاح!';
+                    const promises = Array.from(fileInput.files).map(file => uploadImageToImgBB(file));
+                    documentUrls = await Promise.all(promises);
+                    if (statusText) statusText.innerText = '✅ تم رفع الصور بنجاح!';
                 } catch (err) {
                     console.error("ImgBB upload error", err);
-                    if (statusText) statusText.innerText = '⚠️ تعذّر رفع الصورة - سيتم الحفظ بدون صورة.';
+                    if (statusText) statusText.innerText = '⚠️ تعذّر رفع بعض الصور - سيتم الحفظ بدون المفقود.';
                 }
             }
 
@@ -117,14 +117,14 @@ export function initCasesService() {
                 details: document.getElementById('caseDetails').value,
             };
 
-            // Keep old image if no new file uploaded
-            if (documentUrl) {
-                record.documentUrl = documentUrl;
+            // Keep old images if no new file uploaded
+            if (documentUrls.length > 0) {
+                record.documentUrls = documentUrls;
             } else if (editingCaseId) {
                 const existing = allCases.find(r => r.id === editingCaseId);
-                record.documentUrl = existing ? (existing.documentUrl || '') : '';
+                record.documentUrls = existing ? (existing.documentUrls || (existing.documentUrl ? [existing.documentUrl] : [])) : [];
             } else {
-                record.documentUrl = '';
+                record.documentUrls = [];
             }
 
             try {
@@ -190,6 +190,13 @@ function loadCases() {
     });
 }
 
+function getDocsHtml(r) {
+    let urls = r.documentUrls || [];
+    if (!urls.length && r.documentUrl) urls = [r.documentUrl];
+    if (!urls.length) return 'لا يوجد';
+    return urls.map((u, idx) => `<a href="${u}" target="_blank" class="text-blue-500 underline text-sm block whitespace-nowrap">صورة ${idx + 1}</a>`).join('');
+}
+
 function renderCasesTable(records) {
     const tbody = document.getElementById('casesTableBody');
     if (!tbody) return;
@@ -218,7 +225,7 @@ function renderCasesTable(records) {
                 <td class="p-3">${r.nationalId || '-'}</td>
                 <td class="p-3">${r.phone || '-'}</td>
                 <td class="p-3 text-sm">${r.address || '-'}</td>
-                <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض</a>` : 'لا يوجد'}</td>
+                <td class="p-3">${getDocsHtml(r)}</td>
                 <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
                 <td class="p-3">
                     <div class="flex gap-2 justify-center">
@@ -237,7 +244,7 @@ function renderCasesTable(records) {
                 <td class="p-3 text-sm">${r.address || '-'}</td>
                 <td class="p-3 text-center">${r.familyCount || '-'}</td>
                 <td class="p-3 text-sm">${r.details || '-'}</td>
-                <td class="p-3">${r.documentUrl ? `<a href="${r.documentUrl}" target="_blank" class="text-blue-500 underline text-sm">عرض</a>` : 'لا يوجد'}</td>
+                <td class="p-3">${getDocsHtml(r)}</td>
                 <td class="p-3 text-xs text-gray-500">${r.notes || '-'}</td>
                 <td class="p-3">
                     <div class="flex gap-2 justify-center">
@@ -307,7 +314,7 @@ function exportToExcel() {
             "الهاتف": r.phone || "",
             "العنوان": r.address || "",
             "الملاحظات": r.notes || "",
-            "رابط المستند": r.documentUrl || "لا يوجد"
+            "رابط المستند": (r.documentUrls || (r.documentUrl ? [r.documentUrl] : [])).join(" , ") || "لا يوجد"
         }));
     } else {
         exportData = filteredRecords.map((r, index) => ({
@@ -319,7 +326,7 @@ function exportToExcel() {
             "عدد أفراد الأسرة": r.familyCount || "",
             "الحالة": r.details || "",
             "الملاحظات": r.notes || "",
-            "رابط المستند": r.documentUrl || "لا يوجد"
+            "رابط المستند": (r.documentUrls || (r.documentUrl ? [r.documentUrl] : [])).join(" , ") || "لا يوجد"
         }));
     }
 
